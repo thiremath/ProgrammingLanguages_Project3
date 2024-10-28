@@ -1,16 +1,22 @@
 package simplf; 
 
 class Environment {
+    Environment EnclosingEnv;
+    AssocList currAssocList;
+
     Environment() {
-        throw new UnsupportedOperationException("TODO: implement environments.");
+        this.EnclosingEnv = null;
+        this.currAssocList = null;
     }
 
     Environment(Environment enclosing) {
-        throw new UnsupportedOperationException("TODO: implement environments.");
+        this.EnclosingEnv = enclosing;
+        this.currAssocList = null;
     }
 
     Environment(AssocList assocList, Environment enclosing) {
-        throw new UnsupportedOperationException("TODO: implement environments.");
+        this.EnclosingEnv = enclosing;
+        this.currAssocList = assocList;
     }
 
     // Return a new version of the environment that defines the variable "name"
@@ -28,15 +34,34 @@ class Environment {
     // This should be constructed by building a new class of type AssocList whose "next"
     // reference is the previous AssocList.
     Environment define(Token varToken, String name, Object value) {
-        throw new UnsupportedOperationException("TODO: implement environments.");
+        currAssocList = new AssocList(name, value, currAssocList);
+        return this;        
     }
 
     void assign(Token name, Object value) {
-        throw new UnsupportedOperationException("TODO: implement environments.");
+        for (AssocList list = currAssocList; list != null; list = list.next) {
+            if (list.name.equals(name.lexeme)) {
+                list.value = value;
+                return;
+            }
+        }
+        if (EnclosingEnv != null) {
+            EnclosingEnv.assign(name, value);
+        } else {
+            throw new RuntimeException("Undefined variable" + name.lexeme + ".");
+        }
     }
 
     Object get(Token name) {
-        throw new UnsupportedOperationException("TODO: implement environments.");
+        for (AssocList list = currAssocList; list != null; list = list.next) {
+            if (list.name.equals(name.lexeme)) {
+                return list.value;
+            }
+        }
+        if (EnclosingEnv != null) {
+            return EnclosingEnv.get(name);
+        }
+        throw new RuntimeException("Undefined variable" + name.lexeme + ".");
     }
 }
 
