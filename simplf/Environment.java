@@ -39,29 +39,40 @@ class Environment {
     }
 
     void assign(Token name, Object value) {
-        for (AssocList list = currAssocList; list != null; list = list.next) {
-            if (list.name.equals(name.lexeme)) {
-                list.value = value;
+        Environment it = this;
+        
+        while (it != null) {
+            boolean flag = false;
+            for (AssocList currit = it.currAssocList; currit != null; currit = currit.next) {
+                if (currit.name.equals(name.lexeme)) {
+                    currit.value = value;
+                    flag = true;
+                    break;
+                }
+            }
+            
+            if (flag) {
                 return;
             }
+            it = it.EnclosingEnv;
         }
-        if (EnclosingEnv != null) {
-            EnclosingEnv.assign(name, value);
-        } else {
-            throw new RuntimeException("Undefined variable" + name.lexeme + ".");
-        }
+
+        throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'");
     }
 
-    Object get(Token name) {
-        for (AssocList list = currAssocList; list != null; list = list.next) {
-            if (list.name.equals(name.lexeme)) {
-                return list.value;
+    public Object get(Token identifier) {
+        Environment envIterator = this;
+        do {
+            AssocList listit = envIterator.currAssocList;
+            while (listit != null) {
+                if (listit.name.equals(identifier.lexeme))  return listit.value;
+                listit = listit.next;
             }
-        }
-        if (EnclosingEnv != null) {
-            return EnclosingEnv.get(name);
-        }
-        throw new RuntimeException("Undefined variable" + name.lexeme + ".");
+            envIterator = envIterator.EnclosingEnv;
+        } 
+        while (envIterator != null); 
+
+        throw new RuntimeException("Undefined variable '" + identifier.lexeme + "'");
     }
 }
 

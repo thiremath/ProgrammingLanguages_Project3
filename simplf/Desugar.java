@@ -81,7 +81,7 @@ public class Desugar implements Expr.Visitor<Expr>, Stmt.Visitor<Stmt> {
 
     @Override
     public Stmt visitForStmt(For stmt) {
-        throw new UnsupportedOperationException("TODO: desugar for loops");
+        return new For(stmt.init.accept(this), stmt.cond.accept(this),stmt.incr.accept(this),stmt.body.accept(this));
     }
 
     @Override
