@@ -34,8 +34,8 @@ class Environment {
     // This should be constructed by building a new class of type AssocList whose "next"
     // reference is the previous AssocList.
     Environment define(Token varToken, String name, Object value) {
-        currAssocList = new AssocList(name, value, currAssocList);
-        return this;        
+        this.currAssocList = new AssocList(name, value, this.currAssocList);
+        return new Environment(this.currAssocList,this);        
     }
 
     void assign(Token name, Object value) {
