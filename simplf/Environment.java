@@ -1,8 +1,8 @@
 package simplf; 
 
 class Environment {
-    Environment EnclosingEnv;
-    AssocList currAssocList;
+    private final Environment EnclosingEnv;
+    private AssocList currAssocList;
 
     Environment() {
         this.EnclosingEnv = null;
@@ -51,7 +51,7 @@ class Environment {
                 }
             }
             
-            if (flag) {
+            if (flag != false) {
                 return;
             }
             it = it.EnclosingEnv;

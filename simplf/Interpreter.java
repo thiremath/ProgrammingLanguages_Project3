@@ -131,6 +131,18 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
                     return (double) left + (double) right;
                 }
                 throw new RuntimeError(expr.op, "Addition operation not supported for operands.");
+            case LESS:
+                checkNumbers(expr.op, left, right);
+                return (double) left < (double) right;
+            case LESS_EQUAL:
+                checkNumbers(expr.op, left, right);
+                return (double) left <= (double) right;
+            case EQUAL_EQUAL:
+                return isEqual(left, right);
+            case BANG_EQUAL:
+                return !isEqual(left, right);
+            case COMMA:
+                return right;
             case MINUS:
                 checkNumbers(expr.op, left, right);
                 return (double) left - (double) right;
@@ -149,18 +161,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
             case GREATER_EQUAL:
                 checkNumbers(expr.op, left, right);
                 return (double) left >= (double) right;
-            case LESS:
-                checkNumbers(expr.op, left, right);
-                return (double) left < (double) right;
-            case LESS_EQUAL:
-                checkNumbers(expr.op, left, right);
-                return (double) left <= (double) right;
-            case EQUAL_EQUAL:
-                return isEqual(left, right);
-            case BANG_EQUAL:
-                return !isEqual(left, right);
-            case COMMA:
-                return right;
             default:
                 break;
         }
@@ -200,22 +200,22 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
     public Object visitCallExpr(Expr.Call expr) {
         Object calledFunc = evaluate(expr.callee);
 
-        if (!(calledFunc instanceof SimplfCallable)) {
-            throw new RuntimeError(expr.paren, "Here, only functions can be called.");
+        if ((calledFunc instanceof SimplfCallable)) {
+            List<Object> paramsList = new ArrayList<>();
+
+            for (int i=0;i < expr.args.size();i++) {
+                paramsList.add(evaluate(expr.args.get(i)));
+            }
+
+            SimplfCallable callableObj = (SimplfCallable) calledFunc;
+            if (paramsList.size() != ((SimplfFunction) callableObj).declaration.params.size()) {
+                throw new RuntimeError(expr.paren, "Expected " + ((SimplfFunction) callableObj).declaration.params.size() + " arguments but got " + paramsList.size() + ".");
+            }
+
+            return callableObj.call(this, paramsList);
         }
 
-        List<Object> paramsList = new ArrayList<>();
-
-        for (int i=0;i < expr.args.size();i++) {
-            paramsList.add(evaluate(expr.args.get(i)));
-        }
-
-        SimplfCallable callableObj = (SimplfCallable) calledFunc;
-        if (paramsList.size() != ((SimplfFunction) callableObj).declaration.params.size()) {
-            throw new RuntimeError(expr.paren, "Expected " + ((SimplfFunction) callableObj).declaration.params.size() + " arguments but got " + paramsList.size() + ".");
-        }
-
-        return callableObj.call(this, paramsList);
+        throw new RuntimeError(expr.paren, "Here, only functions can be called.");
     }
 
     private Object evaluate(Expr expr) {

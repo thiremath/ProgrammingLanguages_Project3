@@ -24,7 +24,7 @@ import simplf.Stmt.While;
 public class Desugar implements Expr.Visitor<Expr>, Stmt.Visitor<Stmt> {
 
     public Desugar() {
-        
+        // Empty constructor.
     }
 
     public List<Stmt> desugar(List<Stmt> stmts) {
